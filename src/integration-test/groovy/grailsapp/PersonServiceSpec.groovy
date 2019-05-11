@@ -8,7 +8,7 @@ import org.hibernate.SessionFactory
 
 import java.util.concurrent.TimeUnit
 
-@Integration
+@Integration(applicationClass = Application.class)
 @Rollback
 class PersonServiceSpec extends Specification {
 
