@@ -12,7 +12,7 @@ class PersonServiceImpl implements PersonService {
 
     @Override
     List<Person> list(Map args) {
-        Person.list()
+        Person.list(args)
     }
 
     @Override

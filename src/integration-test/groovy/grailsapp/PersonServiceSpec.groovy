@@ -1,9 +1,12 @@
 package grailsapp
 
+import com.github.javafaker.Faker
 import grails.testing.mixin.integration.Integration
 import grails.gorm.transactions.Rollback
 import spock.lang.Specification
 import org.hibernate.SessionFactory
+
+import java.util.concurrent.TimeUnit
 
 @Integration
 @Rollback
@@ -12,16 +15,26 @@ class PersonServiceSpec extends Specification {
     PersonService personService
     SessionFactory sessionFactory
 
-    private Long setupData() {
-        // TODO: Populate valid domain instances and return a valid ID
-        //new Person(...).save(flush: true, failOnError: true)
-        //new Person(...).save(flush: true, failOnError: true)
-        //Person person = new Person(...).save(flush: true, failOnError: true)
-        //new Person(...).save(flush: true, failOnError: true)
-        //new Person(...).save(flush: true, failOnError: true)
-        assert false, "TODO: Provide a setupData() implementation for this generated test suite"
-        //person.id
+    private Closure personInit = { p ->
+        Faker faker = new Faker()
+        p.firstName = faker.name().firstName()
+        p.lastName = faker.name().lastName()
+        p.email = faker.internet().emailAddress()
+        p.birthday = faker.date().past(365*70, TimeUnit.DAYS)
+        p
     }
+
+    private Long setupData() {
+
+        (1..5).each {
+            Person person = new Person().with(personInit)
+            person.save(flush: true, failOnError: true)
+        }
+
+        Person.list()[0].id
+    }
+
+
 
     void "test get"() {
         setupData()
@@ -38,7 +51,10 @@ class PersonServiceSpec extends Specification {
 
         then:
         personList.size() == 2
-        assert false, "TODO: Verify the correct instances are returned"
+
+        //ids 6 7 8 9 10
+        personList[0].id == 8
+        personList[1].id == 9
     }
 
     void "test count"() {
@@ -64,8 +80,7 @@ class PersonServiceSpec extends Specification {
 
     void "test save"() {
         when:
-        assert false, "TODO: Provide a valid instance to save"
-        Person person = new Person()
+        Person person = new Person().with(personInit)
         personService.save(person)
 
         then:
